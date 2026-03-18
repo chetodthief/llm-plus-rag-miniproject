@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineRAG - AI Movie Expert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(-45deg, #0a0e27, #1a1a3e, #0f0f2e, #1a0f3e);
+            background-size: 400% 400%;
+            color: #e2e8f0; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animated background orbs */
+        body::before {
+            content: '';
+            position: fixed; 
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none; 
+            z-index: 0;
+            animation: orbShift 20s ease-in-out infinite;
+        }
+
+        @keyframes orbShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 70% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 30% 70%, rgba(34, 197, 94, 0.06) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbShift2 25s ease-in-out infinite;
+        }
+
+        @keyframes orbShift2 {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Glass morphism - Ultra modern */
+        .glass {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(51, 65, 85, 0.3);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass:hover {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 12px 48px rgba(239, 68, 68, 0.15);
+        }
+
+        /* Mega search input */
+        .mega-search {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .mega-search-input {
+            width: 100%;
+            padding: 24px 32px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            background: rgba(15, 23, 42, 0.7);
+            border: 2px solid rgba(71, 85, 105, 0.4);
+            border-radius: 20px;
+            color: #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            letter-spacing: 0.3px;
+        }
+
+        .mega-search-input:focus {
+            outline: none;
+            border-color: #ef4444;
+            background: rgba(15, 23, 42, 0.85);
+            box-shadow: 
+                0 0 0 4px rgba(239, 68, 68, 0.2),
+                0 20px 60px rgba(239, 68, 68, 0.25),
+                inset 0 0 20px rgba(239, 68, 68, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .mega-search-input::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+            font-weight: 400;
+        }
+
+        /* Search button */
+        .mega-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .mega-search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
+        }
+
+        .mega-search-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .mega-search-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 25%, #eab308 50%, #3b82f6 75%, #a855f7 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        /* Floating filter bar */
+        .floating-filters {
+            position: relative;
+            z-index: 30;
+            margin-top: 32px;
+            animation: slideUp 0.6s ease 0.2s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-bar {
+            @apply glass rounded-2xl p-5 border-l-4 border-orange-500;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid rgba(71, 85, 105, 0.4);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+        }
+
+        /* Movie card */
+        .movie-card {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; 
+            overflow: hidden;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+        }
+
+        .movie-card:hover { 
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+
+        .movie-card.mentioned { 
+            border-color: rgba(34, 197, 94, 0.6) !important;
+            background: rgba(34, 197, 94, 0.08) !important;
+        }
+
+        /* Movie poster */
+        .movie-poster {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            height: 240px;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .movie-card:hover .movie-poster img {
+            transform: scale(1.1) rotate(1deg);
+        }
+
+        /* Loading animation */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.7); opacity: 0.5; }
+        }
+
+        .pulse-dot {
+            animation: pulse-dot 1.4s ease-in-out infinite;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { 
+            width: 10px; 
+        }
+
+        ::-webkit-scrollbar-track { 
+            background: rgba(15, 23, 42, 0.3); 
+        }
+
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #ef4444, #f97316);
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #f97316, #eab308);
+        }
+
+        /* Dropdown */
+        #movieDropdown {
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 50;
+            animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .dropdown-item:hover { 
+            background: rgba(239, 68, 68, 0.15);
+            border-left-color: #ef4444;
+            padding-left: calc(1rem + 3px);
+        }
+
+        /* Answer section */
+        .answer-box {
+            animation: fadeInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .answer-text {
+            line-height: 1.9;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            white-space: pre-wrap;      /* renders \n from LLM as visible line breaks */
+            word-wrap: break-word;
+        }
+
+        /* Section title */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 2rem;
+            position: relative;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #ef4444, transparent);
+            margin-left: auto;
+            border-radius: 2px;
+        }
+
+        /* Filter badge */
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.15));
+            border: 1.5px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 8px 14px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Header */
+        .header-container {
+            animation: slideInDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 48px;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: -2px;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        .header-meta {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        /* Movie info */
+        .movie-info {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 6px 0;
+            font-weight: 500;
+        }
+
+        .movie-title {
+            font-weight: 800;
+            color: #fca5a5;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .header-title {
+                font-size: 2.5rem;
+            }
+
+            .mega-search-input {
+                font-size: 1.1rem;
+                padding: 18px 24px;
+            }
+
+            .movie-card:hover {
+                transform: translateY(-8px) scale(1.02);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .mega-search-input {
+                font-size: 1rem;
+                padding: 16px 20px;
+            }
+
+            .mega-search-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+        }
+
+        /* Loading text */
+        .loading-text {
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 100;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="relative">
+
+<div class="relative z-10">
+    <!-- Header -->
+    <div class="header-container text-center pt-16 pb-8 px-4">
+        <div class="header-title gradient-text">
+            🎬 Netflux
+        </div>
+        <p class="header-subtitle">
+            MOVIE :D
+        </p>
+        <p class="header-meta">
+            6710110435 singhanat kaewchana
+        </p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 pb-20">
+        <div class="flex gap-6">
+
+        <!-- Left: History Sidebar (Desktop only) -->
+        <div class="w-72 flex-shrink-0 hidden lg:block">
+            <div class="glass rounded-2xl p-5 sticky top-6" style="max-height:calc(100vh - 80px);display:flex;flex-direction:column;overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #334155">
+                    <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#cbd5e1">📜 History</span>
+                    <button onclick="clearHistory()" style="font-size:0.75rem;color:#64748b;cursor:pointer;background:none;border:none;transition:color 0.2s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'" title="Clear history">🗑️ Clear</button>
+                </div>
+                <div id="historyList" style="overflow-y:auto;flex:1">
+                    <p class="text-slate-500 text-xs text-center py-6 font-light">No history yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Main Content -->
+        <div class="flex-1 min-w-0">
+        <!-- Mega Search Section -->
+        <div class="mega-search mb-8" style="animation: slideUp 0.6s ease;">
+            <input 
+                type="text" 
+                id="questionInput" 
+                class="mega-search-input"
+                placeholder="What's your movie question?" 
+                onkeydown="if(event.key==='Enter') askQuestion()">
+            <button id="askBtn" class="mega-search-btn" onclick="askQuestion()">
+                Ask ✨
+            </button>
+        </div>
+
+        <!-- Floating Filters -->
+        <div class="floating-filters">
+            <div class="glass rounded-2xl p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between mb-4">
+                    <label class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <span>🔍</span>
+                        <span>Advanced Filters</span>
+                    </label>
+                    <span class="text-xs text-slate-500 font-normal">Optional</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="filter-item">
+                        <label class="filter-label">📅 Release Year</label>
+                        <select id="filterYear" class="filter-select">
+                            <option value="">All Years</option>
+                        </select>
+                    </div>
+                    <div class="filter-item relative">
+                        <label class="filter-label">🎬 Movie Title</label>
+                        <input type="text" id="filterTitleInput" placeholder="Search..." 
+                            class="filter-select cursor-text"
+                            style="appearance: none; background-image: none; padding-right: 16px;"
+                            onInput="onMovieSearch()" onFocus="onMovieSearch()" autocomplete="off">
+                        <input type="hidden" id="filterTitleValue">
+                        <div id="movieDropdown" class="absolute glass rounded-xl w-full mt-2 hidden shadow-2xl border border-slate-700"></div>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-3 flex-wrap">
+                    <span id="filterBadge" class="hidden filter-badge"></span>
+                    <button onclick="clearFilters()" class="hidden text-xs font-bold text-slate-400 hover:text-red-400 transition-colors duration-200 px-3 py-1 rounded-lg hover:bg-red-900/20" id="clearFilterBtn">
+                        ✕ Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden mt-12 glass rounded-2xl p-12 answer-box">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="pulse-dot w-4 h-4 bg-red-400 rounded-full" style="animation-delay:0s"></div>
+                <div class="pulse-dot w-4 h-4 bg-orange-400 rounded-full" style="animation-delay:0.3s"></div>
+                <div class="pulse-dot w-4 h-4 bg-yellow-400 rounded-full" style="animation-delay:0.6s"></div>
+                <span class="loading-text text-slate-300 text-base font-medium" id="loadingText">Searching cinema database...</span>
+            </div>
+            <div class="space-y-3">
+                <div class="h-4 shimmer rounded-full"></div>
+                <div class="h-4 shimmer rounded-full w-5/6"></div>
+                <div class="h-4 shimmer rounded-full w-4/5"></div>
+                <div class="h-4 shimmer rounded-full w-3/4"></div>
+            </div>
+        </div>
+
+        <!-- Answer Section -->
+        <div id="answerSection" class="hidden mt-12">
+            <!-- AI Answer -->
+            <div class="glass rounded-2xl p-12 mb-12 answer-box border-l-4 border-blue-500">
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="text-4xl">🤖</span>
+                    <h2 class="font-bold text-3xl text-white">AI Response</h2>
+                </div>
+                <p id="answerText" class="answer-text"></p>
+            </div>
+
+            <!-- Source Cards -->
+            <div class="mb-6">
+                <div class="section-title">
+                    <span>📼</span>
+                    <span>Source Movies</span>
+                </div>
+            </div>
+            <div id="sourcesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </div>
+
+    </div> <!-- end main flex -->
+    </div> <!-- end max-w-7xl -->
+</div>
+
+<!-- Click outside to close movie dropdown -->
+<script>
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#filterTitleInput') && !e.target.closest('#movieDropdown')) {
+        document.getElementById('movieDropdown').classList.add('hidden');
+    }
+});
+</script>
+
+<script>
+const API = 'http://localhost:8000';
+
+// ========================================
+// STATE
+// ========================================
+let history = JSON.parse(localStorage.getItem('cinerag_history') || '[]');
+let allMovies = [];
+let allYears = [];
+
+// ========================================
+// INIT: Load filters from API
+// ========================================
+async function init() {
+    try {
+        const [moviesRes, yearsRes] = await Promise.all([
+            fetch(`${API}/movies`),
+            fetch(`${API}/years`)
+        ]);
+        allMovies = await moviesRes.json();
+        allYears = await yearsRes.json();
+
+        const yearSel = document.getElementById('filterYear');
+        allYears.forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y; 
+            opt.textContent = y;
+            yearSel.appendChild(opt);
+        });
+    } catch(e) {
+        console.error('Failed to load initial data:', e);
+    }
+    renderHistory();
+}
+
+// ========================================
+// MOVIE TITLE AUTOCOMPLETE
+// ========================================
+// Debounce timer for API search
+let searchDebounceTimer = null;
+
+async function onMovieSearch() {
+    const q = document.getElementById('filterTitleInput').value.trim();
+    const dd = document.getElementById('movieDropdown');
+
+    if (q.length === 0) {
+        dd.classList.add('hidden');
+        document.getElementById('filterTitleValue').value = '';
+        updateFilterBadge();
+        return;
+    }
+
+    // Show loading indicator immediately
+    dd.innerHTML = '<div class="px-6 py-4 text-center text-slate-400 text-sm">🔍 Searching...</div>';
+    dd.classList.remove('hidden');
+
+    // Debounce: wait 250ms after last keystroke before hitting the server
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`${API}/movies?search=${encodeURIComponent(q)}`);
+            if (!res.ok) throw new Error('API error');
+            const filtered = await res.json();
+
+            if (filtered.length === 0) {
+                dd.innerHTML = '<div class="px-6 py-8 text-center text-slate-500 text-sm font-medium">No movies found</div>';
+                return;
+            }
+
+            dd.innerHTML = filtered.slice(0, 50).map(m => `
+                <div class="dropdown-item px-6 py-4 cursor-pointer text-sm text-slate-200 font-medium" 
+                     onclick="selectMovie('${escapeAttr(m.title)}', '${escapeAttr(m.year)}')">
+                    <div class="flex justify-between items-start gap-3">
+                        <span class="font-bold">${escapeHtml(m.title)}</span>
+                        <span class="text-slate-500 text-xs whitespace-nowrap">${m.year}</span>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {
+            dd.innerHTML = '<div class="px-6 py-4 text-center text-red-400 text-sm">⚠️ Error connecting to server</div>';
+        }
+    }, 250);
+}
+
+function selectMovie(title, year) {
+    document.getElementById('filterTitleInput').value = title;
+    document.getElementById('filterTitleValue').value = title;
+    document.getElementById('movieDropdown').classList.add('hidden');
+    
+    if (year && year !== 'Unknown') {
+        document.getElementById('filterYear').value = year;
+    }
+    updateFilterBadge();
+}
+
+// ========================================
+// FILTER BADGE 
+// ========================================
+function updateFilterBadge() {
+    const year = document.getElementById('filterYear').value;
+    const title = document.getElementById('filterTitleValue').value;
+    const badge = document.getElementById('filterBadge');
+    const clearBtn = document.getElementById('clearFilterBtn');
+
+    if (year || title) {
+        let text = '';
+        if (title) text += `🎬 ${title}`;
+        if (year) text += (text ? ' • ' : '') + `📅 ${year}`;
+        badge.textContent = text;
+        badge.classList.remove('hidden');
+        clearBtn.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+    }
+}
+
+document.getElementById('filterYear').addEventListener('change', updateFilterBadge);
+
+function clearFilters() {
+    document.getElementById('filterYear').value = '';
+    document.getElementById('filterTitleInput').value = '';
+    document.getElementById('filterTitleValue').value = '';
+    updateFilterBadge();
+}
+
+// ========================================
+// ASK QUESTION
+// ========================================
+async function askQuestion() {
+    const question = document.getElementById('questionInput').value.trim();
+    if (!question) return;
+
+    const filterYear = document.getElementById('filterYear').value || null;
+    const filterTitle = document.getElementById('filterTitleValue').value || null;
+
+    // Show loading
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('answerSection').classList.add('hidden');
+    document.getElementById('askBtn').disabled = true;
+    document.getElementById('askBtn').textContent = '⏳';
+
+    const loadingTexts = [
+        'Searching cinema database...',
+        'Reading plot context...',
+        'Generating answer with Llama 3...',
+        'Fetching movie posters...',
+        'Analyzing cinema data...',
+        'Crafting the perfect response...'
+    ];
+    let li = 0;
+    const loadInterval = setInterval(() => {
+        document.getElementById('loadingText').textContent = loadingTexts[li % loadingTexts.length];
+        li++;
+    }, 2000);
+
+    try {
+        const res = await fetch(`${API}/ask`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, filter_year: filterYear, filter_title: filterTitle })
+        });
+
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json();
+
+        // Render answer — use innerText so \n newlines are preserved correctly
+        document.getElementById('answerText').innerText = data.answer;
+
+        // Render source cards
+        const grid = document.getElementById('sourcesGrid');
+        grid.innerHTML = data.sources.map(src => `
+            <div class="movie-card ${src.mentioned_in_answer ? 'mentioned' : ''}">
+                <div class="movie-poster">
+                    <img src="${src.poster_url}" alt="${escapeHtml(src.title)}"
+                     class="w-full h-full object-cover"
+                         loading="lazy"
+                         onerror="handlePosterError(this, '${escapeAttr(src.title)}')">
+                </div>
+                <div class="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h4 class="movie-title leading-snug mb-4">${escapeHtml(src.title)}</h4>
+                        <div class="space-y-2">
+                            <div class="movie-info">
+                                <span>📅</span>
+                                <span>${src.year || '?'}</span>
+                            </div>
+                            <div class="movie-info">
+                                <span>🎭</span>
+                                <span>${src.genre || '?'}</span>
+                            </div>
+                            <div class="movie-info">
+                                <span>🎬</span>
+                                <span class="truncate">${escapeHtml(src.director || 'Unknown')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Show result
+        document.getElementById('answerSection').classList.remove('hidden');
+
+        // Save to history
+        addToHistory(question, data.answer, filterYear, filterTitle);
+
+    } catch(e) {
+        document.getElementById('answerSection').classList.remove('hidden');
+        document.getElementById('answerText').innerHTML = `<span class="text-red-400 font-bold">❌ Error:</span> ${escapeHtml(e.message)}`;
+        document.getElementById('sourcesGrid').innerHTML = '';
+    } finally {
+        clearInterval(loadInterval);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('askBtn').disabled = false;
+        document.getElementById('askBtn').textContent = 'Ask ✨';
+    }
+}
+
+// ========================================
+// UTILS
+// ========================================
+function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeAttr(str) {
+    return String(str || '').replace(/'/g, "\\'");
+}
+
+// Start
+init();
+
+// ========================================
+// POSTER FALLBACK (standalone to avoid nested quotes in template literal)
+// ========================================
+function handlePosterError(img, title) {
+    img.parentElement.innerHTML = `
+        <div class="w-full h-full flex flex-col items-center justify-center text-slate-500 text-center p-4" 
+             style="background:linear-gradient(135deg,#1e293b,#0f172a)">
+            <span style="font-size:2rem">🎬</span>
+            <span style="font-size:0.75rem;margin-top:8px;line-height:1.3">${title}</span>
+        </div>`;
+}
+
+// ========================================
+// HISTORY (stored in localStorage)
+// ========================================
+function addToHistory(question, answer, filterYear, filterTitle) {
+    const item = {
+        id: Date.now(),
+        question,
+        preview: answer.substring(0, 70) + '...',
+        filterYear,
+        filterTitle,
+        time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+    };
+    history.unshift(item);
+    if (history.length > 30) history.pop();
+    localStorage.setItem('cinerag_history', JSON.stringify(history));
+    renderHistory();
+}
+
+function renderHistory() {
+    const container = document.getElementById('historyList');
+    if (!container) return;
+    if (history.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-xs text-center py-6 font-light">No history yet</p>';
+        return;
+    }
+    container.innerHTML = history.map(item => `
+        <div style="border-left:3px solid #334155;padding:10px 12px;cursor:pointer;border-radius:8px;margin-bottom:6px;transition:all 0.2s"
+             onclick="loadHistory(${item.id})"
+             onmouseover="this.style.borderLeftColor='#ef4444';this.style.background='rgba(239,68,68,0.07)'"
+             onmouseout="this.style.borderLeftColor='#334155';this.style.background='transparent'"
+             title="${escapeAttr(item.question)}">
+            <p style="font-size:0.8rem;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.question)}</p>
+            <p style="font-size:0.75rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px">${escapeHtml(item.preview)}</p>
+            <p style="font-size:0.7rem;color:#475569;margin-top:4px">${item.time}</p>
+        </div>
+    `).join('');
+}
+
+function loadHistory(id) {
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+    document.getElementById('questionInput').value = item.question;
+    if (item.filterYear) document.getElementById('filterYear').value = item.filterYear;
+    if (item.filterTitle) {
+        document.getElementById('filterTitleInput').value = item.filterTitle;
+        document.getElementById('filterTitleValue').value = item.filterTitle;
+    }
+    updateFilterBadge();
+    askQuestion();
+}
+
+function clearHistory() {
+    if (confirm('Clear all history?')) {
+        history = [];
+        localStorage.removeItem('cinerag_history');
+        renderHistory();
+    }
+}
+</script>
+
+</body>
+</html>
